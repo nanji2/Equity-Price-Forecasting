@@ -79,9 +79,9 @@ def predict(model, data, period):
         df_train = data[['Date', 'Close']]
         df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
         model = NeuralProphet(
-            learning_rate=0.002,
+            learning_rate=0.01,
             #loss_func='MSE',
-            trend_local_reg=0.1
+            trend_local_reg=1
             )
 
         metrics = model.fit(df_train, freq='D')
@@ -96,7 +96,7 @@ def predict(model, data, period):
 
 
 def main():
-    st.title("S&P500 Stock Price Prediction")
+    st.title("S&P500 Equity Price Forecasting")
     st.sidebar.title('User Input')
 
     stocks = retrieve_tickers()
