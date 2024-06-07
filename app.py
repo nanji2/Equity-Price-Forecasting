@@ -6,6 +6,7 @@ from datetime import date
 from plotly import graph_objs as go
 from prophet import Prophet
 from pmdarima import auto_arima
+from neuralprophet import NeuralProphet
 
 
 @st.cache_resource
@@ -74,6 +75,24 @@ def predict(model, data, period):
         fig2.layout.update(xaxis_title='Date', yaxis_title='Price')
         fig2.layout.update(xaxis_rangeslider_visible=True)
         st.plotly_chart(fig2)
+    elif model == 'NeuralProphet':
+        df_train = data[['Date', 'Close']]
+        df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
+        model = NeuralProphet(
+            learning_rate=0.002,
+            #loss_func='MSE',
+            trend_local_reg=0.1
+            )
+
+        metrics = model.fit(df_train, freq='D')
+        future = model.make_future_dataframe(df_train, periods=period)
+        forecast = model.predict(future)
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name='Actual'))
+        fig2.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat1'], name='Forecast'))
+        fig2.layout.update(xaxis_title='Date', yaxis_title='Price')
+        fig2.layout.update(xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig2)
 
 
 def main():
@@ -101,7 +120,7 @@ def main():
 
     # Select model
     st.subheader('Forecast data')
-    selected_model = st.sidebar.radio('Select model:', ['Prophet', 'ARIMA'])
+    selected_model = st.sidebar.radio('Select model:', ['Prophet', 'ARIMA', 'NeuralProphet'])
     predict(selected_model, data, period)
 
 
