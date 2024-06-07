@@ -1,1 +1,1 @@
-# stock-price-prediction
+# Equity Price Forecasting
